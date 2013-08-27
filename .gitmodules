@@ -1,0 +1,3 @@
+[submodule "cookbooks/cookbook-openstack-image"]
+	path = cookbooks/cookbook-openstack-image
+	url = https://github.com/stackforge/cookbook-openstack-image.git
