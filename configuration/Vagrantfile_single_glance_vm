@@ -1,0 +1,19 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+    config.vm.box = "ubuntu1204-chef"
+    config.vm.network :private_network, ip: "10.125.0.12"
+    config.vm.hostname = "glancehost"
+
+    config.vm.provision :chef_client do |chef|
+      chef.chef_server_url = 'https://10.125.0.10'
+      chef.validation_key_path = "chef-validator.pem"
+      chef.add_recipe "apt"
+      chef.add_recipe "mysql::client" 
+      chef.add_recipe "openstack-common"
+      chef.add_recipe "openstack-image::registry"
+      chef.add_recipe "openstack-image::api"
+      chef.add_recipe "openstack-image::identity_registration"
+    end
+end
