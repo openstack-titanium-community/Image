@@ -1,0 +1,73 @@
+#
+# Cookbook Name:: openstack-image
+# Recipe:: db_registration 
+#
+# Copyright 2013, AT&T Services, Inc.
+# Copyright 2013, Craig Tracey <craigtracey@gmail.com>
+# Copyright 2013, Opscode, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+class ::Chef::Recipe
+  include ::Openstack
+end
+
+
+::Chef::Log.info "!!!!!!!!!!!!!!!!!! glance DB Registration !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+node["openstack"]["developer_mode"] = false
+
+
+db_endpoint = node['openstack']['db']['image']['host']
+image_registry_host = node['openstack']['endpoints']['image-registry']['host']
+endpoint_api = node['openstack']['endpoints']['identity-api']['host']
+endpoint_identity_admin = node['openstack']['endpoints']['identity-admin']['host']
+::Chef::Log.info "Search for Keystone identiry admin endpoint #{endpoint_identity_admin}"
+::Chef::Log.info "Search for Keystone api endpoint #{endpoint_api}"
+::Chef::Log.info "Search for Image registry endpoint #{image_registry_host}"
+::Chef::Log.info "Search for Database endpoint #{db_endpoint}"
+
+
+root_user_use_databag = node['openstack']['db']['root_user_use_databag']
+key_path = node["openstack"]["secret"]["key_path"]
+user_key = node['openstack']['db']['root_user_key']
+
+::Chef::Log.info "Loading databag for root password? #{root_user_use_databag}"
+::Chef::Log.info "Loading encrypted databag Mimi #{key_path}"
+::Chef::Log.info "Root Key databag  #{user_key}"
+
+
+::Chef::Log.info ">>>>>>> Glance DB Registration End <<<<<<<<< "
+
+service_db_pwd_key = "glance"
+db_passwords_bag = node["openstack"]["secret"]["db_passwords_data_bag"]
+encrypted_key_path = node["openstack"]["secret"]["key_path"]
+
+# secret = ::Chef::EncryptedDataBagItem.load_secret encrypted_key_path
+service_db_pwd  = secret db_passwords_bag, service_db_pwd_key 
+# ::Chef::EncryptedDataBagItem.load(db_passwords_bag, service_db_pwd_key, secret)[service_db_pwd_key]
+
+# service_db_pwd  = "glance" 
+::Chef::Log.info "Retrieve glance db password #{service_db_pwd}"
+
+
+db_create_with_user "image",
+                      node["openstack"]["image"]["db"]["username"],
+                      service_db_pwd 
+
+
+
+# db_create_with_user "image", 
+#                      node["glance"]["db"]["user"],
+#                      node["glance"]["db"]["password"]

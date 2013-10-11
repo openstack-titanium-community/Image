@@ -1,0 +1,8 @@
+{
+  "type": "map",
+  "required": true,
+  "mapping": {
+    "id": { "type": "str", "required": true, "assert": "val == 'glance'" },
+    "glance": { "type": "str", "required": true }
+  }
+}
